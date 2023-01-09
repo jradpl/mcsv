@@ -3,20 +3,29 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends AbstractController
 {
-    #[Route('/', name: "main")]
-    public function main() : Response{
-
+    #[Route('/', name: "index")]
+    public function index() : Response{
+        return $this->redirectToRoute('app_main');
     }
     
-    #[Route('/main', name: 'app_main')]
-    public function index(): Response
+    #[Route('/main', name: 'main')]
+    public function main(): Response
     {
-        return "Działa";
+        return $this->render('main.html.twig',[
+            
+        ]);
+    }
+
+    #[Route('/panel', name: 'panel')]
+    public function panel(): Response
+    {
+        return $this->render('panel.html.twig',[
+            
+        ]);
     }
 }

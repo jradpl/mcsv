@@ -1,10 +1,44 @@
 {% extends "base.html.twig" %}
 
 {% block title %}
-Strona główna
+	Strona główna
 {% endblock %}
 
 {% block body %}
-<h1>Strona główna</h1>
+	<main>
+		<section class="put-data-section">
+			<div class="container">
+				<div class="row form-csv rounded-2 justify-content-md-center align-items-center align-self-center bg-dark bg-gradient text-light">
+					<form>
+						<div class="mb-3">
+							<label for="name" class="name">Name</label>
+							<input type="text" class="form-control" id="name">
+						</div>
+                        <div class="mb-3">
+							<label for="surname" class="surname">Surname</label>
+							<input type="text" class="form-control" id="surname">
+						</div>
+						<div class="mb-3">
+							<label for="e-mail" class="form-label">Email address</label>
+							<input type="email" class="form-control" id="email">
+							<div id="emailHelp" class="form-text text-light">We'll never share your email with anyone else.</div>
+						</div>
+                        <div class="mb-4">
+							<label for="tel" class="tel">Telephone</label>
+							<input type="text" class="form-control" id="tel">
+						</div>
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" id="input-file">
+                        </div>
+                        <div class="mb-3 form-check">
+							<input type="checkbox" class="form-check-input" id="check">
+							<label class="form-check-label" for="check">Accept Terms</label>
+						</div>
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</form>
+				</div>
+			</div>
+		</section>
+	</main>
 
 {% endblock %}

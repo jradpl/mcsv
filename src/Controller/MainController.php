@@ -10,7 +10,7 @@ class MainController extends AbstractController
 {
     #[Route('/', name: "index")]
     public function index() : Response{
-        return $this->redirectToRoute('app_main');
+        return $this->redirectToRoute('main');
     }
     
     #[Route('/main', name: 'main')]

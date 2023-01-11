@@ -13,16 +13,15 @@
                     <form method="POST" action="/add" enctype="multipart/form-data">
 						<div class="mb-3">
 							<label for="name" class="name">Name</label>
-							<input name="name" type="text" class="form-control" id="name">
+							<input name="name" type="text" class="form-control" id="name" required>
 						</div>
                         <div class="mb-3">
 							<label for="surname" class="surname">Surname</label>
-							<input name="surname" type="text" class="form-control" id="surname">
+							<input name="surname" type="text" class="form-control" id="surname" required>
 						</div>
 						<div class="mb-3">
 							<label for="e-mail" class="form-label">Email address</label>
-							<input name="email" type="email" class="form-control" id="email">
-							<div id="emailHelp" class="form-text text-light">We'll never share your email with anyone else.</div>
+							<input name="email" type="email" class="form-control" id="email" required>
 						</div>
                         <div class="mb-4">
 							<label for="tel" class="form-label">Telephone</label>
@@ -31,10 +30,6 @@
                         <div class="input-group mb-3">
                             <input name="file" type="file" class="form-control" id="file" >
                         </div>
-                        <div class="mb-3 form-check">
-							<input type="checkbox" class="form-check-input" id="check">
-							<label class="form-check-label" for="check">Accept Terms</label>
-						</div>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</form>
 				</div>

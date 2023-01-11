@@ -49,13 +49,12 @@ class MainController extends AbstractController
     #[Route('/add', methods: ['POST'], name: 'add')]
     public function add(Request $request): Response
     {
-        $csv = $this->loadAllCSVRows();
-        $csv_len = count($csv);
-        $new_id = ++$csv_len;
+        $new_id = uniqid();
         $arrayToSave = $this->makeArrayToSaveNewRow($new_id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $_POST["file"]);
-        try{
+        try {
             $writer = Writer::createFromPath('../public/csv/base.csv', 'a+');
-            $writer->setNewline(" ");
+            $writer->setNewline("\n");
+            $writer->getNewline();
             $writer->insertOne($arrayToSave);
         } catch (Exception $e) {
             return $e->getMessage();
@@ -79,12 +78,33 @@ class MainController extends AbstractController
 
     protected function deleteRow($id)
     {
-        
+        $delete = $id;
+
+        $data = file('../public/csv/base.csv');
+
+        $out = array();
+
+        foreach ($data as $line) {
+            $line_to_check = trim($line);
+            $pattern = "/^" . $delete."/i";
+            if (!preg_match($pattern,$line_to_check)) {
+                $out[] = $line;
+            }
+        }
+
+        $fp = fopen('../public/csv/base.csv', 'w+');
+        flock($fp, LOCK_EX);
+        foreach ($out as $line) {
+            fwrite($fp, $line);
+        }
+        flock($fp, LOCK_UN);
+        fclose($fp);
     }
 
-    protected function makeArrayToSaveNewRow($id, $name, $surname, $email, $telephone, $fileUrl){
+    protected function makeArrayToSaveNewRow($id, $name, $surname, $email, $telephone, $fileUrl = " ")
+    {
         return array($id, $name, $surname, $email, $telephone, $fileUrl);
-        
+
     }
 
 

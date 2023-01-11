@@ -10,7 +10,7 @@
 			<div class="container">
 				<div class="row form-csv rounded-2 justify-content-md-center align-items-center align-self-center bg-dark bg-gradient text-light">
 					<h2 class="text-center">Menagment of data - MCSV</h2>
-                    <form method="post" action="/save/{{row.0}}">
+                    <form method="post" action="/save/{{row.0}}" enctype="multipart/form-data">
 						<div class="mb-3">
 							<label for="name" class="name">Name</label>
 							<input name="name" type="text" class="form-control" id="name" value="{{row.1}}">
@@ -28,7 +28,7 @@
 							<input name="tel" type="text" class="form-control" id="tel" value="{{row.4}}">
 						</div>
                         <div class="input-group mb-3">
-                            <input name="file" type="file" class="form-control" id="input-file">
+                            <input name="file" type="file" class="form-control" id="file">
                         </div>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</form>

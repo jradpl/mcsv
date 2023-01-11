@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use League\Csv\Statement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -49,8 +50,7 @@ class MainController extends AbstractController
     #[Route('edit/{id}', name: 'edit_row')]
     public function edit($id): Response
     {
-        $row_id = $id;
-        $row_data = $this->get_row_from_line($row_id);
+        $row_data = $this->get_row_from_line($id);
         return $this->render('edit.html.twig', [
             "row" => $row_data
         ]);
@@ -59,17 +59,23 @@ class MainController extends AbstractController
     #[Route('save/{id}', name: 'save_row')]
     public function save($id, Request $request): Response
     {
-        $row_id = $id;
-        $arrayToSave = $this->makeArrayToSaveNewRow($id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $_POST["file"]);
+        if($request->files->get('file')){
+            $filePath = $this->moveUploadFile($request);
+        }else{
+            $row_data = $this->get_row_from_line($id);
+            $filePath = $row_data[5];
+        }
+        $arrayToSave = $this->makeArrayToSaveNewRow($id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $filePath);
         $this->editRow($id, $arrayToSave);
         return $this->redirectToRoute('panel');
     }
 
-    #[Route('/add', methods: ['POST'], name: 'add')]
+    #[Route('/add', name: 'add')]
     public function add(Request $request): Response
     {
         $new_id = uniqid();
-        $arrayToSave = $this->makeArrayToSaveNewRow($new_id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $_POST["file"]);
+        $filePath = $this->moveUploadFile($request);
+        $arrayToSave = $this->makeArrayToSaveNewRow($new_id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $filePath);
         try {
             $writer = Writer::createFromPath('../public/csv/base.csv', 'a+');
             $writer->setNewline("\n");
@@ -78,6 +84,7 @@ class MainController extends AbstractController
         } catch (Exception $e) {
             return $e->getMessage();
         }
+        
         return $this->redirectToRoute('main');
     }
 
@@ -168,6 +175,26 @@ class MainController extends AbstractController
     {
         return array($id, $name, $surname, $email, $telephone, $fileUrl);
 
+    }
+
+    protected function moveUploadFile($request){
+        $file = $request->files->get('file');
+        $filePath = $file->getRealPath();
+        $fileName = $file->getClientOriginalName();
+        if($filePath){
+
+            $newFileName = uniqid() . '.' . $fileName;
+
+            try{
+                move_uploaded_file($filePath,
+                    $this->getParameter('kernel.project_dir') . '/public/files/'.$newFileName
+                );
+            }catch(FileException $e){
+                return new Response($e->getMessage());
+            }
+
+            return $filePath = '/files/' . $newFileName;
+        }
     }
 
 

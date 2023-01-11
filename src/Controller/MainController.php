@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use League\Csv\Statement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,9 +42,8 @@ class MainController extends AbstractController
     #[Route('delete/{id}', methods: ['GET', 'DELETE'], name: 'delete_row')]
     public function delete($id): Response
     {
-        $row_id = $id;
-        $this->deleteRow($row_id);
-
+        $this->deleteFile($id);
+        $this->deleteRow($id);
         return $this->redirectToRoute('panel');
     }
 
@@ -59,32 +59,43 @@ class MainController extends AbstractController
     #[Route('save/{id}', name: 'save_row')]
     public function save($id, Request $request): Response
     {
-        if($request->files->get('file')){
-            $filePath = $this->moveUploadFile($request);
-        }else{
-            $row_data = $this->get_row_from_line($id);
-            $filePath = $row_data[5];
+        $submittedToken = $request->request->get('token');
+        if ($this->isCsrfTokenValid('edit', $submittedToken)) {
+            if($request->files->get('file')){
+                $filePath = $this->moveUploadFile($request);
+            }else{
+                $row_data = $this->get_row_from_line($id);
+                $filePath = $row_data[5];
+            }
+            $arrayToSave = $this->makeArrayToSaveNewRow($id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $filePath);
+            $this->editRow($id, $arrayToSave);
         }
-        $arrayToSave = $this->makeArrayToSaveNewRow($id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $filePath);
-        $this->editRow($id, $arrayToSave);
         return $this->redirectToRoute('panel');
     }
 
     #[Route('/add', name: 'add')]
     public function add(Request $request): Response
     {
-        $new_id = uniqid();
-        $filePath = $this->moveUploadFile($request);
-        $arrayToSave = $this->makeArrayToSaveNewRow($new_id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $filePath);
-        try {
-            $writer = Writer::createFromPath('../public/csv/base.csv', 'a+');
-            $writer->setNewline("\n");
-            $writer->getNewline();
-            $writer->insertOne($arrayToSave);
-        } catch (Exception $e) {
-            return $e->getMessage();
+        $submittedToken = $request->request->get('token');
+        if ($this->isCsrfTokenValid('main', $submittedToken)) {
+            if($request->files->get('file')){
+                $filePath = $this->moveUploadFile($request);
+            }else{
+                
+                $filePath = "";
+            }
+
+            $new_id = uniqid();
+            $arrayToSave = $this->makeArrayToSaveNewRow($new_id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $filePath);
+            try {
+                $writer = Writer::createFromPath('../public/csv/base.csv', 'a+');
+                $writer->setNewline("\n");
+                $writer->getNewline();
+                $writer->insertOne($arrayToSave);
+            } catch (Exception $e) {
+                return $e->getMessage();
+            }
         }
-        
         return $this->redirectToRoute('main');
     }
 
@@ -195,6 +206,14 @@ class MainController extends AbstractController
 
             return $filePath = '/files/' . $newFileName;
         }
+    }
+
+    protected function deleteFile($id){
+        $arr = $this->get_row_from_line($id);
+        $fp = '.'.$arr[5];
+        unlink($fp);
+
+        
     }
 
 

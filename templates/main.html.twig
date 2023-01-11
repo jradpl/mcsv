@@ -28,8 +28,9 @@
 							<input name="tel" type="text" class="form-control" id="tel">
 						</div>
                         <div class="input-group mb-3">
-                            <input name="file" type="file" class="form-control" id="file" >
+                            <input name="file" type="file" class="form-control" id="file">
                         </div>
+						<input type="hidden" name="token" value="{{ csrf_token('main') }}"/>
 						<button type="submit" class="btn btn-primary">Submit</button>
 					</form>
 				</div>

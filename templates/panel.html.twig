@@ -37,6 +37,7 @@ Panel Admina
                     {% endfor %}
                 </tbody>
               </table>
+              <input type="hidden" name="token" value="{{ csrf_token('panel') }}"/>
           </div>
         </div>
       </div>

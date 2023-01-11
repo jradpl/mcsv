@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use League\Csv\Reader;
+use League\Csv\Writer;
 use League\Csv\Exception;
 
 class MainController extends AbstractController
@@ -45,6 +46,23 @@ class MainController extends AbstractController
         return $this->redirectToRoute('panel');
     }
 
+    #[Route('/add', methods: ['POST'], name: 'add')]
+    public function add(Request $request): Response
+    {
+        $csv = $this->loadAllCSVRows();
+        $csv_len = count($csv);
+        $new_id = ++$csv_len;
+        $arrayToSave = $this->makeArrayToSaveNewRow($new_id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $_POST["file"]);
+        try{
+            $writer = Writer::createFromPath('../public/csv/base.csv', 'a+');
+            $writer->setNewline(" ");
+            $writer->insertOne($arrayToSave);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        return $this->redirectToRoute('main');
+    }
+
     protected function loadAllCSVRows()
     {
         try {
@@ -61,16 +79,12 @@ class MainController extends AbstractController
 
     protected function deleteRow($id)
     {
-        $file_handle = fopen("../public/csv/base.csv", "r+");
+        
+    }
 
-        while (!feof($file_handle)) {
-            $line_of_text = fgetcsv($file_handle, 1024);
-            $text = $line_of_text;
-                if ($id == $text) {
-                    fputcsv($file_handle, $line_of_text);
-                }
-        }
-        fclose($file_handle);
+    protected function makeArrayToSaveNewRow($id, $name, $surname, $email, $telephone, $fileUrl){
+        return array($id, $name, $surname, $email, $telephone, $fileUrl);
+        
     }
 
 

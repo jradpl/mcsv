@@ -1,4 +1,3 @@
-id,name,surname,email,telephone,fileurl
-1,Paweł,Kowalski,test@test.pl,432432432,cat.jpg
-2,Paweł,Zieliński,test@test.pl,568432432,cat.jpg
-
+id,name, surname, e-mail, telephone, fileurl
+1,Paweł,Kowalski,test@test.pl,432432432,cat.jpg2
+2,a,a,a@a.pl,423342342,pikachu.jpg3

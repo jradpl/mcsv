@@ -46,6 +46,25 @@ class MainController extends AbstractController
         return $this->redirectToRoute('panel');
     }
 
+    #[Route('edit/{id}', name: 'edit_row')]
+    public function edit($id): Response
+    {
+        $row_id = $id;
+        $row_data = $this->get_row_from_line($row_id);
+        return $this->render('edit.html.twig', [
+            "row" => $row_data
+        ]);
+    }
+
+    #[Route('save/{id}', name: 'save_row')]
+    public function save($id, Request $request): Response
+    {
+        $row_id = $id;
+        $arrayToSave = $this->makeArrayToSaveNewRow($id, $_POST["name"], $_POST["surname"], $_POST["email"], $_POST["tel"], $_POST["file"]);
+        $this->editRow($id, $arrayToSave);
+        return $this->redirectToRoute('panel');
+    }
+
     #[Route('/add', methods: ['POST'], name: 'add')]
     public function add(Request $request): Response
     {
@@ -101,12 +120,55 @@ class MainController extends AbstractController
         fclose($fp);
     }
 
+    protected function get_row_from_line($id){
+        $edit = $id;
+
+        $data = file('../public/csv/base.csv');
+
+        foreach ($data as $line) {
+            $line_to_check = trim($line);
+            $pattern = "/^" . $edit."/i";
+            if (preg_match($pattern,$line_to_check)) {
+                $line_arr = explode(',', $line_to_check);
+                return $line_arr;
+            }
+            
+        }
+    }
+
+    protected function editRow($id,$edited_row){
+        $edit = $id;
+
+        $data = file('../public/csv/base.csv');
+
+        $out = array();
+
+        foreach ($data as $line) {
+            $line_to_check = trim($line);
+            $pattern = "/^" . $edit."/i";
+            if (preg_match($pattern,$line_to_check)) {
+                $line = implode(',', $edited_row);
+                $line = $line . "\n";
+                $out[] = $line;
+            }else{
+                $out[] = $line;
+            }
+        }
+
+        $fp = fopen('../public/csv/base.csv', 'w+');
+        flock($fp, LOCK_EX);
+        foreach ($out as $line) {
+            fwrite($fp, $line);
+        }
+        flock($fp, LOCK_UN);
+        fclose($fp);
+    }
+
     protected function makeArrayToSaveNewRow($id, $name, $surname, $email, $telephone, $fileUrl = " ")
     {
         return array($id, $name, $surname, $email, $telephone, $fileUrl);
 
     }
-
 
 
 
